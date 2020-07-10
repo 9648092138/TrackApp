@@ -3,6 +3,7 @@ package com.op.main;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 
 import javax.annotation.PostConstruct;
@@ -13,6 +14,7 @@ import java.util.TimeZone;
 		PollsApplication.class,
 		Jsr310JpaConverters.class
 })
+//@ComponentScan({"com.op.main.service"})
 public class PollsApplication {
 
 	@PostConstruct

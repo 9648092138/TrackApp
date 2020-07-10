@@ -10,6 +10,7 @@ public class RoutDetailController {
 
 	@GetMapping("/getRoutdetial")
 	public String gettotalroutDetail() {
+		
 		return "today 2 km travale";
 	}
 }

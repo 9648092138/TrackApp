@@ -11,6 +11,7 @@ import com.op.main.payload.SignUpRequest;
 import com.op.main.repository.RoleRepository;
 import com.op.main.repository.UserRepository;
 import com.op.main.security.JwtTokenProvider;
+import com.op.main.service.VerificationCodeEmailerService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Created by rajeevkumarsingh on 02/08/17.
@@ -36,7 +39,10 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
+	
+	@Autowired
+	VerificationCodeEmailerService emailService;
+	
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -52,6 +58,7 @@ public class AuthController {
     @Autowired
     JwtTokenProvider tokenProvider;
 
+    UUID uid;
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
@@ -70,13 +77,19 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    	Optional<User> userdetail =userRepository.findByEmail(signUpRequest.getEmail());
+    	
+    	if(userdetail.isPresent()==true) {
+    		 uid = userdetail.get().getUserId();
+    	}
         if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return new ResponseEntity(new ApiResponse(false, "Username is already taken!"),
+    
+            return new ResponseEntity(new ApiResponse(false, "Username is already taken!",uid),
                     HttpStatus.BAD_REQUEST);
         }
 
         if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            return new ResponseEntity(new ApiResponse(false, "Email Address already in use!"),
+            return new ResponseEntity(new ApiResponse(false, "Email Address already in use!",uid),
                     HttpStatus.BAD_REQUEST);
         }
 
@@ -90,13 +103,17 @@ public class AuthController {
                 .orElseThrow(() -> new AppException("User Role not set."));
 
         user.setRoles(Collections.singleton(userRole));
-
+        UUID uuid = UUID.randomUUID();
+        System.out.println("Random UUID :" + uuid.toString());
+        System.out.println("UUID version :" + uuid.version()); 
+        user.setUserId(uuid);
+       // String userid = user.setUserId(uuid);
         User result = userRepository.save(user);
-
+        emailService.sendSimpleMessage(result);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath().path("/users/{username}")
                 .buildAndExpand(result.getUsername()).toUri();
 
-        return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+        return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully",result.getUserId()));
     }
 }
