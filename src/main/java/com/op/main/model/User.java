@@ -8,6 +8,7 @@ import com.op.main.model.audit.DateAudit;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = { "username" }),
-		@UniqueConstraint(columnNames = { "email" }) })
+		@UniqueConstraint(columnNames = { "email" }),@UniqueConstraint(columnNames = { "mobileNo" }) })
 public class User extends DateAudit {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +43,11 @@ public class User extends DateAudit {
 	@NotBlank
 	@Size(max = 100)
 	private String password;
+	
+	 @Size(min=0,max=10)
+	 
+	 @Pattern(regexp="(^$|[0-9]{10})")
+	 private String mobileNo;
 	
 	@Column(name = "reset_token")
 	private String resetToken;

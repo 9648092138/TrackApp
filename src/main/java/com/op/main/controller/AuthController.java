@@ -59,6 +59,7 @@ public class AuthController {
     JwtTokenProvider tokenProvider;
 
     UUID uid;
+    
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 

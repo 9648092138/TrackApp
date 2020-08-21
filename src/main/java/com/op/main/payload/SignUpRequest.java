@@ -23,8 +23,20 @@ public class SignUpRequest {
     @NotBlank
     @Size(min = 6, max = 20)
     private String password;
+    
+     @Size(min=0,max=10)
+	 @Pattern(regexp="(^$|[0-9]{10})")
+	 private String mobileNo;
 
-    public String getName() {
+    public String getMobileNo() {
+		return mobileNo;
+	}
+
+	public void setMobileNo(String mobileNo) {
+		this.mobileNo = mobileNo;
+	}
+
+	public String getName() {
         return name;
     }
 
